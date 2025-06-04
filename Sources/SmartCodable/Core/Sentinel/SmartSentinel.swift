@@ -20,7 +20,9 @@ public struct SmartSentinel {
     
     /// 设置回调方法，传递解析完成时的日志记录
     public static func onLogGenerated(handler: @escaping (String) -> Void) {
-        self.logsHandler = handler
+        handlerQueue.sync {
+            self.logsHandler = handler
+        }
     }
     
     /// Set up different levels of padding
@@ -45,6 +47,10 @@ public struct SmartSentinel {
     
     /// 回调闭包，用于在解析完成时传递日志
     private static var logsHandler: ((String) -> Void)?
+    
+    /// 用于同步访问 logsHandler 的队列
+    private static let handlerQueue = DispatchQueue(label: "com.smartcodable.handler", qos: .utility)
+
 }
 
 
@@ -107,7 +113,13 @@ extension SmartSentinel {
             message += getFooter()
             print(message)
             
-            logsHandler?(message)
+            handlerQueue.sync {
+                if let handler = logsHandler {
+                    DispatchQueue.main.async {
+                        handler(message)
+                    }
+                }
+            }
         }
         
         cache.clearCache(parsingMark: parsingMark)
@@ -131,7 +143,13 @@ extension SmartSentinel {
                 message += getFooter()
                 print(message)
                 
-                logsHandler?(message)
+                handlerQueue.sync {
+                    if let handler = logsHandler {
+                        DispatchQueue.main.async {
+                            handler(message)
+                        }
+                    }
+                }
             }
         }
     }
