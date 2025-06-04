@@ -101,16 +101,27 @@ extension SmartSentinel {
         }
     }
     
-    static func monitorLogs(in name: String, parsingMark: String) {
+    static func monitorLogs(in name: String, parsingMark: String, impl: JSONDecoderImpl) {
         
         guard SmartSentinel.isValid else { return }
         
+        var header: String?
+        if let key = CodingUserInfoKey.logContextHeader {
+            header = impl.userInfo[key] as? String
+        }
+        
+        var footer: String?
+        if let key = CodingUserInfoKey.logContextFooter {
+            footer = impl.userInfo[key] as? String
+        }
+
+        
         if let format = cache.formatLogs(parsingMark: parsingMark) {
             var message: String = ""
-            message += getHeader()
+            message += getHeader(context: header)
             message += name + " 👈🏻 👀\n"
             message += format
-            message += getFooter()
+            message += getFooter(context: footer)
             print(message)
             
             handlerQueue.sync {
@@ -177,12 +188,25 @@ extension SmartSentinel {
     }
     
     
-    static func getHeader() -> String {
-        return "\n================================  [Smart Sentinel]  ================================\n"
+    static func getHeader(context: String? = nil) -> String {
+        let line = "\n================================  [Smart Sentinel]  ================================\n"
+        
+        if let c = context, !c.isEmpty {
+            return line + c + "\n\n"
+            
+        } else {
+            return line
+        }
     }
     
-    static func getFooter() -> String {
-        return "====================================================================================\n"
+    static func getFooter(context: String? = nil) -> String {
+        let line = "====================================================================================\n"
+        
+        if let c = context, !c.isEmpty {
+            return "\n" + c + "\n" + line
+        } else {
+            return line
+        }
     }
     
     private static func logIfNeeded(level: SmartSentinel.Level, callback: () -> ()) {

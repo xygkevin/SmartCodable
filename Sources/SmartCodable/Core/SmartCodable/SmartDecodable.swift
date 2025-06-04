@@ -55,6 +55,9 @@ public enum SmartDecodingOption: Hashable {
     /// The mapping strategy for keys during parsing
     case key(JSONDecoder.SmartKeyDecodingStrategy)
     
+    /// 附加用于日志系统的上下文信息，例如网络请求的 URL、参数、调用位置等。
+    case logContext(header: String, footer: String)
+    
     /// Handles the hash value, ignoring the impact of associated values.
     public func hash(into hasher: inout Hasher) {
         switch self {
@@ -66,6 +69,8 @@ public enum SmartDecodingOption: Hashable {
             hasher.combine(2)
         case .key:
             hasher.combine(3)
+        case .logContext:
+            hasher.combine(4)
         }
     }
     
@@ -78,6 +83,8 @@ public enum SmartDecodingOption: Hashable {
         case (.float, .float):
             return true
         case (.key, .key):
+            return true
+        case (.logContext, .logContext):
             return true
         default:
             return false
@@ -288,6 +295,16 @@ extension Data {
                     _decoder.nonConformingFloatDecodingStrategy = strategy
                 case .key(let strategy):
                     _decoder.smartKeyDecodingStrategy = strategy
+                case .logContext(let header, let footer):
+                    var userInfo = _decoder.userInfo
+                    if let headerKey = CodingUserInfoKey.logContextHeader {
+                        userInfo.updateValue(header, forKey: headerKey)
+                    }
+                    
+                    if let footerKey = CodingUserInfoKey.logContextFooter {
+                        userInfo.updateValue(footer, forKey: footerKey)
+                    }
+                    _decoder.userInfo = userInfo
                 }
             }
         }

@@ -88,6 +88,7 @@ extension ViewController {
         [
             "title": "Smart调试信息",
             "list": [
+                ["name": "日志自定义", "vc": "DecodingLogViewController"],
                 ["name": "字典日志", "vc": "DecodingDictLogViewController"],
                 ["name": "数组日志", "vc": "DecodingArrayLogViewController"],
                 ["name": "并发日志", "vc": "ConcurrenceLogViewController"],

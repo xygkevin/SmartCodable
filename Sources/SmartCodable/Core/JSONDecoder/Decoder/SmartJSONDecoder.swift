@@ -52,13 +52,15 @@ open class SmartJSONDecoder: JSONDecoder, @unchecked Sendable {
         if let parsingMark = CodingUserInfoKey.parsingMark {
             userInfo.updateValue(mark, forKey: parsingMark)
         }
+        
+
 
         do {
             var parser = JSONParser(bytes: Array(data))
             let json = try parser.parse()
             let impl = JSONDecoderImpl(userInfo: self.userInfo, from: json, codingPath: [], options: self.options)
             let value = try impl.unwrap(as: type)
-            SmartSentinel.monitorLogs(in: "\(type)", parsingMark: mark)
+            SmartSentinel.monitorLogs(in: "\(type)", parsingMark: mark, impl: impl)
             return value
         } catch {
             SmartSentinel.monitorAndPrint(debugDescription: "The given data was not valid JSON.", error: error, in: type)
@@ -70,6 +72,10 @@ open class SmartJSONDecoder: JSONDecoder, @unchecked Sendable {
 
 extension CodingUserInfoKey {
     /// This parsing tag is used to summarize logs.
-    static let parsingMark = CodingUserInfoKey.init(rawValue: "Stamrt.parsingMark")
+
+    static var parsingMark = CodingUserInfoKey.init(rawValue: "Stamrt.parsingMark")
+    
+    static var logContextHeader = CodingUserInfoKey.init(rawValue: "Stamrt.logContext.header")
+    static var logContextFooter = CodingUserInfoKey.init(rawValue: "Stamrt.logContext.footer")
 }
 
