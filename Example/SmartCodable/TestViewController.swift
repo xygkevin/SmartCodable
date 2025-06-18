@@ -41,30 +41,39 @@ class TestViewController: BaseViewController {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
-        
-        let dict: [String: Any] = [
-            "uuid": "abc",
+        let dict2: [String: Any] =  [
+            "hobby": 123,
+            "age": [],
         ]
         
-        
-        guard let model = User.deserialize(from: dict) else { return }
-        
-        let transDict = model.toDictionary(useMappedKeys: true)
-        print(transDict)
-    }
+        let dict1: [String: Any] =  [
+            
+//            "hobby": 123,
+//            "age": "13",
+            "sub":  dict2
+        ]
 
+        guard let model = Father.deserialize(from: dict1) else { return }
+        print("model = \(model)")
+        
+//        guard let models = [Son].deserialize(from: [dict1, dict2]) else { return }
+//        print("models = \(models)")
+        
+    }
+    struct Father: SmartCodable {
+        var hobby: String?
+        var age: Int = 0
+        var name: String = "Mccc"
+        var firstSon: Son?
+        var secondSon: Son = Son()
+        var sons: [Son] = []
+    }
     
-    struct User: SmartCodable {
-        var id: String = ""
-        
-        static func mappingForKey() -> [SmartKeyTransformer]? {
-            [
-                CodingKeys.id <--- "uuid"
-            ]
-        }
+    struct Son: SmartCodable {
+        var hobby: String?
+        var age: Int = 0
     }
-
+    
 }
 
 
