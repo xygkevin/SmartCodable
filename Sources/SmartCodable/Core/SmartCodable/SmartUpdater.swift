@@ -47,7 +47,7 @@ public struct SmartUpdater<T: SmartCodable> {
     ///   - src: A Dictionary object containing the JSON data.
     public static func update(_ dest: inout T, from src: [String: Any]?) {
         guard let src = src else { return }
-        var destDict = dest.toDictionary() ?? [:]
+        var destDict = dest.toDictionary(useMappedKeys: true) ?? [:]
         updateDict(&destDict, from: src)
         if let model = T.deserialize(from: destDict) {
             dest = model
@@ -61,9 +61,21 @@ extension SmartUpdater {
     /// - Parameters:
     ///   - dest: 目标字典
     ///   - src: 源字典
+//    fileprivate static func updateDict(_ dest: inout [String: Any], from src: [String: Any]) {
+//        dest.merge(src) { _, new in
+//            return new
+//        }
+//    }
+    
     fileprivate static func updateDict(_ dest: inout [String: Any], from src: [String: Any]) {
-        dest.merge(src) { _, new in
-            return new
+        for (key, value) in src {
+            if let subDict = value as? [String: Any],
+               var existingSubDict = dest[key] as? [String: Any] {
+                updateDict(&existingSubDict, from: subDict)
+                dest[key] = existingSubDict
+            } else {
+                dest[key] = value
+            }
         }
     }
 }

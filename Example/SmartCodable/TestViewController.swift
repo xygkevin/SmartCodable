@@ -44,34 +44,27 @@ class TestViewController: BaseViewController {
         
         
         let dict: [String: Any] = [
-            "id": "abc",
-            "profile": [
-              "age": "twenty"
-            ]
+            "uuid": "abc",
         ]
-        
-        
-        
-        
-//        let model1 = dict.decode(type: User.self)
-//        print(model1)
-        
         
         
         guard let model = User.deserialize(from: dict) else { return }
         
-        print(model)
+        let transDict = model.toDictionary(useMappedKeys: true)
+        print(transDict)
     }
 
     
     struct User: SmartCodable {
         var id: String = ""
-        var profile: Profile?
+        
+        static func mappingForKey() -> [SmartKeyTransformer]? {
+            [
+                CodingKeys.id <--- "uuid"
+            ]
+        }
     }
-    
-    struct Profile: SmartCodable {
-        var age: Int = 0
-    }
+
 }
 
 

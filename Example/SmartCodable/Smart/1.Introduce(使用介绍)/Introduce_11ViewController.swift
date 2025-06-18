@@ -24,7 +24,7 @@ class Introduce_11ViewController: BaseCompatibilityViewController {
         ]
         
         guard var model = Model.deserialize(from: dic1) else { return }
-        SmartUpdater.update(&model, from: dic2)
+//        SmartUpdater.update(&model, from: dic2)
         smartPrint(value: model)
     }
     struct Model: SmartCodable {
